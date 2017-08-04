@@ -55,7 +55,7 @@ export default {
             message: 'Invalid password'
           }]
         }
-      })
+      }, this.fields)
     }
   }
 }
