@@ -1,0 +1,9 @@
+{
+  "name": "mvalidate",
+  "version": "1.0.0",
+  "description": "Mobile validation plugin by Vue.js",
+  "main": "index.js",
+  "repository": "https://github.com/hukaibaihu/mvalidate.git",
+  "author": "986535362@qq.com",
+  "license": "MIT"
+}
