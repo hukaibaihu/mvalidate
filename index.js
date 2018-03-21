@@ -16,8 +16,12 @@ const getValue = (keys, thisObj) => {
   return thisObj[keys]
 }
 
+const trim = s => {
+  return s.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
+}
+
 const validateVal = (val) => {
-  return val !== null && val !== '' && typeof val !== 'undefined'
+  return val !== null && typeof val !== 'undefined' && val !== '' && trim(val) !== ''
 }
 
 const eachValidator = (item, key, thisObj, noMessage) => {
@@ -55,12 +59,28 @@ const eachPatterns = (list, key, thisObj, noMessage) => {
   return true
 }
 
-const validator = (rules, thisObj, noMessage) => {
+const getRequired = item => {
+  let {required} = item
+
+  if (typeof item === 'string') {
+    required = item
+  }
+
+  return !!required
+}
+
+const validate = (rules, thisObj, noMessage = false) => {
   let keys = Object.keys(rules)
 
   for (let i = 0, len = keys.length; i < len; i++) {
     let key = keys[i]
     let item = rules[key]
+
+    // 非必填项且没有输入时跳过本次校验
+    const required = getRequired(item)
+    if (!required && !validateVal(getValue(key, thisObj))) {
+      continue
+    }
 
     if (!eachValidator(item, key, thisObj, noMessage)) {
       return false
