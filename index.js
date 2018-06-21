@@ -107,7 +107,7 @@ validator.defaults.handleError = (msg, key) => {
   window.alert(msg)
 }
 
-export default function (Vue, options) {
+const install = function(Vue, options) {
   Object.assign(validator.defaults, options)
 
   Object.assign(validator, validator.defaults)
@@ -115,4 +115,12 @@ export default function (Vue, options) {
   Vue.validate = validator
 
   Vue.prototype.$validate = validator
+}
+
+if (typeof window !== 'undefined' && window.Vue) {
+  window.Vue.use(install)
+}
+
+export default {
+  install
 }
