@@ -1,6 +1,7 @@
 /*!
  * 校验工具
  */
+let validate
 
 const getValue = (keys, thisObj) => {
   if (keys.indexOf('.') > 0) {
@@ -24,7 +25,7 @@ const validateVal = (val) => {
   return val !== null && typeof val !== 'undefined' && val !== '' && trim(val) !== ''
 }
 
-const eachValidator = (item, key, thisObj, noMessage) => {
+const eachValidate = (item, key, thisObj, noMessage) => {
   let val = getValue(key, thisObj)
   let {required, pattern, message} = item
 
@@ -36,18 +37,22 @@ const eachValidator = (item, key, thisObj, noMessage) => {
     if (typeof required === 'string') {
       message = required
     }
-    noMessage || validator.defaults.handleError(message, key)
+    noMessage || validate.defaults.handleError(message, key)
     return false
   }
 
-  if (typeof pattern !== 'undefined' && pattern.test) {
-    if (!pattern.test(val)) {
-      noMessage || validator.defaults.handleError(message, key)
-      return false
-    }
+  let valid = true
+  if (pattern && typeof pattern.test === 'function') {
+    valid = pattern.test(val)
+  } else if (typeof pattern === 'function') {
+    valid = pattern(val)
   }
 
-  return true
+  if (!valid) {
+    noMessage || validate.defaults.handleError(message, key)
+  }
+
+  return valid
 }
 
 const eachPatterns = (list, key, thisObj, noMessage) => {
@@ -69,7 +74,7 @@ const getRequired = item => {
   return !!required
 }
 
-const validate = (rules, thisObj, noMessage = false) => {
+validate = (rules, thisObj, noMessage = false) => {
   let keys = Object.keys(rules)
 
   for (let i = 0, len = keys.length; i < len; i++) {
@@ -82,7 +87,7 @@ const validate = (rules, thisObj, noMessage = false) => {
       continue
     }
 
-    if (!eachValidator(item, key, thisObj, noMessage)) {
+    if (!eachValidate(item, key, thisObj, noMessage)) {
       return false
     }
 
@@ -94,31 +99,31 @@ const validate = (rules, thisObj, noMessage = false) => {
   return true
 }
 
-validator.defaults = {}
+validate.defaults = {}
 
 // 一些内置校验规则
-validator.defaults.patterns = {
+validate.defaults.patterns = {
   phone: /^1[3-9][0-9]{9}$/, // 11位手机号码非严格校验
   vcode: /^[0-9]{4}$/ // 4位纯数字验证码校验
 }
 
 // 默认错误提示
-validator.defaults.handleError = (msg, key) => {
+validate.defaults.handleError = (msg, key) => {
   window.alert(msg)
 }
 
 const install = function(Vue, options) {
-  Object.assign(validator.defaults, options)
+  Object.assign(validate.defaults, options)
 
-  Object.assign(validator, validator.defaults)
+  Object.assign(validate, validate.defaults)
 
-  Vue.validate = validator
+  Vue.validate = validate
 
-  Vue.prototype.$validate = validator
+  Vue.prototype.$validate = validate
 }
 
-if (typeof window !== 'undefined' && window.Vue) {
-  window.Vue.use(install)
+if (typeof window.Vue !== 'undefined') {
+  window.Vue.use({install})
 }
 
 export default {
