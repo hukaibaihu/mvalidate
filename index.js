@@ -22,7 +22,17 @@ const trim = s => {
 }
 
 const validateVal = (val) => {
-  return val !== null && typeof val !== 'undefined' && val !== '' && trim(val) !== ''
+  if (val === null || typeof val === 'undefined') {
+    return false
+  }
+  if (typeof val === 'string') {
+    return val !== '' && trim(val) !== ''
+  }
+  if (typeof val === 'number') {
+    return !isNaN(val)
+  }
+
+  return true
 }
 
 const eachValidate = (item, key, thisObj, noMessage) => {
